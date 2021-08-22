@@ -28,7 +28,7 @@ by adding `arq` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:arq, "~> 0.1.0"}
+    {:arq, "~> 0.2.0"}
   ]
 end
 ```
