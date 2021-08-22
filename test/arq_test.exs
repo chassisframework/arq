@@ -44,6 +44,22 @@ defmodule ARQTest do
 
       refute Process.alive?(pid)
     end
+
+    test "stops when fun returns `:stop`" do
+      msg = :crypto.strong_rand_bytes(10)
+      me = self()
+
+      {:ok, pid} =
+        ARQ.start(fn ->
+          send(me, {self(), msg})
+          :stop
+        end, interval: 1)
+
+      refute Process.alive?(pid)
+
+      assert_receive({^pid, ^msg})
+      refute_receive({^pid, ^msg})
+    end
   end
 
   def request(pid, msg) do

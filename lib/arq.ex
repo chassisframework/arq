@@ -4,7 +4,9 @@ defmodule ARQ do
 
   Local party sends messages by providing an mfa or a fun/0 to ARQ.start/2.
 
-  Upon receipt of message, remote party can acknowledge the message (and stop its repeat) by calling ARQ.stop/1 or sending `:stop` to the requestor process.
+  If mfa or fun returns `:stop`, the ARQ process will terminate. This is useful for synchronous responses.
+
+  Upon receipt of an asynchronous message, remote party can acknowledge the message (and stop its repeat) by calling ARQ.stop/1 or sending `:stop` to the requestor process.
   """
 
   alias ARQ.Request

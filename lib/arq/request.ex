@@ -32,11 +32,15 @@ defmodule ARQ.Request do
   end
 
   def handle_continue(:request, %State{interval: interval, attempts: attempts} = state) do
-    do_request(state)
+    case do_request(state) do
+      :stop ->
+        {:stop, :normal, state}
 
-    Process.send_after(self(), :request, interval)
+      _ ->
+        Process.send_after(self(), :request, interval)
 
-    {:noreply, %State{state | attempts: attempts + 1}}
+        {:noreply, %State{state | attempts: attempts + 1}}
+    end
   end
 
   defp do_request(%State{request: fun}) when is_function(fun) do
