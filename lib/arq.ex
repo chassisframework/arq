@@ -10,7 +10,8 @@ defmodule ARQ do
   """
 
   alias ARQ.Request
-  alias ARQ.RequestSupervisor
+
+  use DynamicSupervisor
 
   @default_interval 1_000
 
@@ -24,18 +25,26 @@ defmodule ARQ do
   You can provide the following options:
     - :interval - number of milliseconds between function invocation repeat.
   """
-  @spec start(request(), opts()) :: {:ok, pid()}
-  def start(request, opts \\ []) when (is_function(request, 0) or is_tuple(request)) and is_list(opts) do
+  @spec start(request(), Supervisor.supervisor(), opts()) :: {:ok, pid()}
+  def start(request, supervisor, opts \\ []) when (is_function(request, 0) or is_tuple(request)) and is_list(opts) do
     interval = Keyword.get(opts, :interval, @default_interval)
 
-    DynamicSupervisor.start_child(RequestSupervisor, {Request, {request, interval}})
+    DynamicSupervisor.start_child(supervisor, {Request, {request, interval}})
   end
 
   @doc """
   Stops the given ARQ process.
   """
-  @spec stop(pid()) :: any()
-  def stop(pid) do
-    send(pid, :stop)
+  @spec stop(GenServer.server()) :: any()
+  defdelegate stop(requester), to: Request
+
+  def start_link(args \\ []) do
+    DynamicSupervisor.start_link(__MODULE__, args)
   end
+
+  @impl DynamicSupervisor
+  def init(_args) do
+    DynamicSupervisor.init(strategy: :one_for_one)
+  end
+
 end

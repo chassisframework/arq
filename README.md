@@ -8,6 +8,8 @@ Upon receipt of message, remote party can acknowledge the message (and stop its 
 
 ## Example:
 ```elixir
+{:ok, supervisor} = ARQ.start_link()
+
 receiver =
   spawn(fn ->
     receive do
@@ -17,7 +19,7 @@ receiver =
     end
   end)
 
-ARQ.start(fn -> send(receiver, {self(), :hi}) end)
+ARQ.start(fn -> send(receiver, {self(), :hi}) end, supervisor)
 ```
 
 ## Installation

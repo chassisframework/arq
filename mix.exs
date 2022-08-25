@@ -18,8 +18,7 @@ defmodule ARQ.MixProject do
 
   def application do
     [
-      extra_applications: [],
-      mod: {ARQ.Application, []}
+      extra_applications: []
     ]
   end
 

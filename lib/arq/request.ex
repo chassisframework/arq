@@ -13,6 +13,11 @@ defmodule ARQ.Request do
     GenServer.start_link(__MODULE__, args)
   end
 
+  def stop(requester) do
+    GenServer.call(requester, :stop)
+  end
+
+  @impl GenServer
   def init({request, interval}) do
     state =
       %State{
@@ -23,14 +28,12 @@ defmodule ARQ.Request do
     {:ok, state, {:continue, :request}}
   end
 
-  def handle_info(:stop, state) do
-    {:stop, :normal, state}
-  end
-
+  @impl GenServer
   def handle_info(:request, state) do
     {:noreply, state, {:continue, :request}}
   end
 
+  @impl GenServer
   def handle_continue(:request, %State{interval: interval, attempts: attempts} = state) do
     case do_request(state) do
       :stop ->
@@ -41,6 +44,11 @@ defmodule ARQ.Request do
 
         {:noreply, %State{state | attempts: attempts + 1}}
     end
+  end
+
+  @impl GenServer
+  def handle_call(:stop, _from, state) do
+    {:stop, :normal, :ok, state}
   end
 
   defp do_request(%State{request: fun}) when is_function(fun) do
