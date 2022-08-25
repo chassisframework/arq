@@ -38,13 +38,14 @@ defmodule ARQ do
   @spec stop(GenServer.server()) :: any()
   defdelegate stop(requester), to: Request
 
+  @doc false
   def start_link(args \\ []) do
     DynamicSupervisor.start_link(__MODULE__, args)
   end
 
+  @doc false
   @impl DynamicSupervisor
   def init(_args) do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
-
 end
